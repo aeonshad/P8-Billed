@@ -36,6 +36,7 @@ export default class NewBill {
     if (this.fileName !== null && this.file !== null) {
       console.log(this.fileName)
       console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+      // Logique déplacé ici
       const formData = new FormData()
       const email = JSON.parse(localStorage.getItem("user")).email
       formData.append('file', this.file)
