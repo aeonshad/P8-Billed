@@ -33,7 +33,7 @@ export default class NewBill {
 }
   handleSubmit = e => {
     e.preventDefault()
-    if (this.fileName !== null) {
+    if (this.fileName !== null && this.file !== null) {
       console.log(this.fileName)
       console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
       const formData = new FormData()
@@ -77,6 +77,7 @@ export default class NewBill {
   }
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store
