@@ -18,10 +18,15 @@ const row = (bill) => {
     </tr>
     `)
   }
-
+//First bug
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
-}
+  if (data == null || data == undefined || data.length == 0) {
+      return '';
+  }
+  const antiChrono = (a, b) => (a.date < b.date ? 1 : -1);
+  const datasSorted = [...data].sort(antiChrono);
+  return datasSorted && datasSorted.length ? datasSorted.map((bill) => row(bill)).join('') : '';
+};
 
 export default ({ data: bills, loading, error }) => {
   
