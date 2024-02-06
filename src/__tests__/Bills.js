@@ -3,11 +3,16 @@
  */
 
 import {screen, waitFor} from "@testing-library/dom"
+import userEvent from '@testing-library/user-event'
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import mockStore from '../__mocks__/store';
+import Bills from '../containers/Bills.js';
+import '@testing-library/jest-dom';
+
+jest.mock("../app/store", () => mockStore)
 
 import router from "../app/Router.js";
 
@@ -97,4 +102,67 @@ describe("Given I am connected as an employee", () => {
         });
     });
   });
+
+  describe('When I click on Nouvelle note de frais', () => {
+    // Vérifie si le formulaire de création de bills apparait
+    test('Then the form to create a new bill appear', async () => {
+        const onNavigate = (pathname) => {
+            document.body.innerHTML = ROUTES({ pathname });
+        };
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+        window.localStorage.setItem(
+            'user',
+            JSON.stringify({
+                type: 'Employee',
+            })
+        );
+        const billsInit = new Bills({
+            document,
+            onNavigate,
+            store: null,
+            localStorage: window.localStorage,
+        });
+        document.body.innerHTML = BillsUI({ data: bills });
+        const handleClickNewBill = jest.fn(() => billsInit.handleClickNewBill());
+        const btnNewBill = screen.getByTestId('btn-new-bill');
+        btnNewBill.addEventListener('click', handleClickNewBill);
+        userEvent.click(btnNewBill);
+        expect(handleClickNewBill).toHaveBeenCalled();
+        await waitFor(() => screen.getByTestId('form-new-bill'));
+        expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+    });
+});
+
+describe('When I click on the eye of a bill', () => {
+    // Vérifie si la modale du billet s'affiche
+    test('Then a modal must appear', async () => {
+        const onNavigate = (pathname) => {
+            document.body.innerHTML = ROUTES({ pathname });
+        };
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+        window.localStorage.setItem(
+            'user',
+            JSON.stringify({
+                type: 'Employee',
+            })
+        );
+        const billsInit = new Bills({
+            document,
+            onNavigate,
+            store: null,
+            localStorage: window.localStorage,
+        });
+        document.body.innerHTML = BillsUI({ data: bills });
+        const handleClickIconEye = jest.fn((icon) => billsInit.handleClickIconEye(icon));
+        const iconEye = screen.getAllByTestId('icon-eye');
+        const modaleFile = document.getElementById('modaleFile');
+        $.fn.modal = jest.fn(() => modaleFile.classList.add('show'));
+        iconEye.forEach((icon) => {
+            icon.addEventListener('click', handleClickIconEye(icon));
+            userEvent.click(icon);
+            expect(handleClickIconEye).toHaveBeenCalled();
+        });
+        expect(modaleFile).toHaveClass('show');
+    });
+});
 });
